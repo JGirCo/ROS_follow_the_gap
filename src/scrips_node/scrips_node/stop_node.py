@@ -24,7 +24,7 @@ class stop_node(Node):
     def parar(self):
         vel = Twist()
         if(min(self.ranges) < 0.4):
-            vel.linear.x = -0.3
+            vel.linear.x = -0.7
             vel.linear.y = 0.0
             vel.angular.z = 0.0
             self.cmd_pub.publish(vel)
@@ -34,7 +34,7 @@ def main(args=None):
     node = stop_node() # Definicion del objeto "node"
 
     # ejecucion ciclica 
-    rclpy.spin(node)
+    # rclpy.spin(node)
     # finalizacion
     rclpy.shutdown()
 

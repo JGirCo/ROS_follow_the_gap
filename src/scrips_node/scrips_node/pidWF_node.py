@@ -8,7 +8,7 @@ class pidWF_node(Node):
     def __init__(self):
         super().__init__("pidWF_node") 
         self.error_mio = 0
-        self.kp = 0.01
+        self.kp = 0.02
         self.kd = 1.0
 
         # subscriptor obj
@@ -25,7 +25,7 @@ class pidWF_node(Node):
     
     def velocidad(self): #el eje de giro z sale del piso
         vel = Twist()
-        vel.linear.x = 0.3
+        vel.linear.x = 0.5
         if(not math.isnan(self.error_mio)):
             vel.angular.z = -self.kp*self.error_mio
         #self.get_logger().info('Recibo el error:'+ str(self.error_mio)+'\n\n\n')

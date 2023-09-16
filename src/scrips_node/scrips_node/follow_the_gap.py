@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Pose
+import numpy as np
 import math
 
 import sys
@@ -22,29 +23,16 @@ class follow_the_gap(Node):
         
         self.error_pub = self.create_publisher(Pose, '/error', 10)
 
-        timer_period = 0.5 # in [s]
+        timer_period = 0.05 # in [s]
         self.timer = self.create_timer(timer_period, self.error)
     
     def scanner(self, data):
-        ranges = data.ranges
-        currentGap = []
-        self.max_gap = []
-        for i, distance in enumerate(ranges):
-            if distance < self.min_dist:
-                currentGap = []
-                continue
-            currentGap.append(i)
-            if len(currentGap) <= len(self.max_gap):
-                continue
-            self.max_gap = currentGap
+        distances = data.ranges.tolist()
         angles = range(self.min_angle,self.max_angle)
-        gapRanges = [ranges[i] for i in self.max_gap]
-        gapAngles = [angles[i] for i in self.max_gap]
-        print(gapRanges)
-        self.get_logger().info('min range:'+ str(min(gapRanges))+'\n\n\n')
-        sortedGapRanges = sorted(gapRanges)
-        medianGapValue = sortedGapRanges[len(sortedGapRanges)//2]
-        self.targetAngle = gapAngles[gapRanges.index(medianGapValue)]
+        self.getMaxGap(distances)
+        gapDistances, gapAngles = self.getGapInfo(distances,angles)
+        self.getTargetAngle(gapDistances, gapAngles)
+        # self.get_logger().info('max gap:'+ str(len(gapDistances))+'\n\n\n')
 
     def error(self):
         # Escrito así para poder hacer uso del PD de Carlos.
@@ -55,6 +43,29 @@ class follow_the_gap(Node):
         #self.get_logger().info('Envio el error:'+ str(error.position.x)+'\n\n\n')
 
         self.error_pub.publish(error)
+
+
+    def getMaxGap(self, distances):
+        currentGap = []
+        self.max_gap = []
+        for i, distance in enumerate(distances):
+            if distance < self.min_dist:
+                currentGap = []
+                continue
+            currentGap.append(i)
+            if len(currentGap) <= len(self.max_gap):
+                continue
+            self.max_gap = currentGap
+
+    def getGapInfo(self, distances, angles):
+        gapDistances = [distances[i] for i in self.max_gap]
+        gapAngles = [angles[i] for i in self.max_gap]
+        return gapDistances, gapAngles
+        
+    def getTargetAngle(self, gapDistances, gapAngles):
+        sortedGapDistances = sorted(gapDistances)
+        # medianGapValue = sortedGapDistances[len(sortedGapDistances)//2]
+        self.targetAngle = gapAngles[len(gapDistances)//2]
 
 def main(args=None):
     rclpy.init(args=args)
