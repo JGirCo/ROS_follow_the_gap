@@ -14,7 +14,7 @@ class follow_the_gap(Node):
         self.min_angle = 0
         self.max_angle = 240
         self.middle_angle = self.max_angle/2
-        self.min_dist = 2
+        self.min_dist = 2.0
         max_gap=[]
         self.targetAngle=self.middle_angle
         # subscriptor obj

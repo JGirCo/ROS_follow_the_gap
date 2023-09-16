@@ -33,7 +33,7 @@ class pidWF_node(Node):
     def velocidad(self): #el eje de giro z sale del piso
         vel = Twist()
         if self.stop_info:
-            vel.linear.x = -0.5
+            vel.linear.x = -0.9
         else:
             vel.linear.x = 0.5
 
